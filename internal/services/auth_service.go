@@ -91,11 +91,9 @@ func (s *AuthService) ValidateToken(tokenString string) (*Claims, error) {
 
 func (s *AuthService) ValidateTokenIgnoreExpiry(tokenString string) (*Claims, error) {
 	claims := &Claims{}
-
 	_, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
 		return []byte(s.config.JWTSecret), nil
 	}, jwt.WithoutClaimsValidation())
-
 	if err != nil {
 		return nil, fmt.Errorf("invalid token: %w", err)
 	}

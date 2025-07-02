@@ -23,7 +23,7 @@ func NewUserHandler(userService *services.UserService) *UserHandler {
 // @Summary      Получить текущего пользователя
 // @Description  Возвращает текущего аутентифицированного пользователя.
 // @Success 200 "Успешный ответ: 'id' пользователя"
-// @Failure      401 "Пользователь не авторизован"
+// @Failure      401 "Токен авторизации недействителен или не найден"
 // @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /api/me [get]
 func (h *UserHandler) GetMe(c *gin.Context) {

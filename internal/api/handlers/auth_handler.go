@@ -56,7 +56,6 @@ func (h *AuthHandler) Login(c *gin.Context) {
 // @Param        body body dto.LogoutRequest true "Access token для выхода"
 // @Success      200 "Вы успешно вышли из системы"
 // @Failure      400 "access_token не передан в теле запроса"
-// @Failure      401 "Пользователь не найден"
 // @Failure      500 "Внутренняя ошибка сервера"
 // @Router       /api/auth/logout [post]
 func (h *AuthHandler) Logout(c *gin.Context) {
