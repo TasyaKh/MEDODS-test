@@ -1,0 +1,189 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Тестовый API для авторизации",
+        "title": "API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/auth/login/{guid}": {
+            "get": {
+                "description": "Аутентификация пользователя по GUID и выдача токенов.",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Вход по GUID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "GUID пользователя",
+                        "name": "guid",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "GUID не передан или некорректный GUID"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/auth/logout": {
+            "post": {
+                "description": "Выход пользователя и удаление сессии",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Выход",
+                "parameters": [
+                    {
+                        "description": "Access token для выхода",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.LogoutRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Вы успешно вышли из системы"
+                    },
+                    "400": {
+                        "description": "access_token не передан в теле запроса"
+                    },
+                    "401": {
+                        "description": "Пользователь не найден"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/auth/refresh-token": {
+            "post": {
+                "description": "Обновляет JWT access токен с помощью refresh токена",
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Обновление access токена",
+                "parameters": [
+                    {
+                        "description": "Запрос на обновление токена",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.RefreshTokenRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.TokenResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный запрос"
+                    },
+                    "401": {
+                        "description": "Неверный access/refresh токен, пользователь не найден или не совпадает User-Agent"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        },
+        "/api/me": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Возвращает текущего аутентифицированного пользователя.",
+                "tags": [
+                    "user"
+                ],
+                "summary": "Получить текущего пользователя",
+                "responses": {
+                    "200": {
+                        "description": "Успешный ответ: 'id' пользователя"
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован"
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "dto.LogoutRequest": {
+            "type": "object",
+            "required": [
+                "access_token"
+            ],
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.RefreshTokenRequest": {
+            "type": "object",
+            "required": [
+                "access_token",
+                "refresh_token"
+            ],
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.TokenResponse": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "expires_in": {
+                    "type": "integer"
+                },
+                "refresh_token": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Введите токен в виде: Bearer {access_token}",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

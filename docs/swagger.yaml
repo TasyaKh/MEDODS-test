@@ -1,0 +1,123 @@
+definitions:
+  dto.LogoutRequest:
+    properties:
+      access_token:
+        type: string
+    required:
+    - access_token
+    type: object
+  dto.RefreshTokenRequest:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+    required:
+    - access_token
+    - refresh_token
+    type: object
+  dto.TokenResponse:
+    properties:
+      access_token:
+        type: string
+      expires_in:
+        type: integer
+      refresh_token:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: Тестовый API для авторизации
+  title: API
+  version: "1.0"
+paths:
+  /api/auth/login/{guid}:
+    get:
+      description: Аутентификация пользователя по GUID и выдача токенов.
+      parameters:
+      - description: GUID пользователя
+        in: path
+        name: guid
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TokenResponse'
+        "400":
+          description: GUID не передан или некорректный GUID
+        "500":
+          description: Внутренняя ошибка сервера
+      summary: Вход по GUID
+      tags:
+      - auth
+  /api/auth/logout:
+    post:
+      description: Выход пользователя и удаление сессии
+      parameters:
+      - description: Access token для выхода
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LogoutRequest'
+      responses:
+        "200":
+          description: Вы успешно вышли из системы
+        "400":
+          description: access_token не передан в теле запроса
+        "401":
+          description: Пользователь не найден
+        "500":
+          description: Внутренняя ошибка сервера
+      summary: Выход
+      tags:
+      - auth
+  /api/auth/refresh-token:
+    post:
+      description: Обновляет JWT access токен с помощью refresh токена
+      parameters:
+      - description: Запрос на обновление токена
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RefreshTokenRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.TokenResponse'
+        "400":
+          description: Некорректный запрос
+        "401":
+          description: Неверный access/refresh токен, пользователь не найден или не
+            совпадает User-Agent
+        "500":
+          description: Внутренняя ошибка сервера
+      summary: Обновление access токена
+      tags:
+      - auth
+  /api/me:
+    get:
+      description: Возвращает текущего аутентифицированного пользователя.
+      responses:
+        "200":
+          description: 'Успешный ответ: ''id'' пользователя'
+        "401":
+          description: Пользователь не авторизован
+        "500":
+          description: Внутренняя ошибка сервера
+      security:
+      - BearerAuth: []
+      summary: Получить текущего пользователя
+      tags:
+      - user
+securityDefinitions:
+  BearerAuth:
+    description: 'Введите токен в виде: Bearer {access_token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
