@@ -1,8 +1,6 @@
 package dto
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 )
 
@@ -12,5 +10,4 @@ type SessionCreate struct {
 	RefreshTokenHash string
 	UserAgent        string
 	IP               string
-	ExpiresAt        time.Time
 }
