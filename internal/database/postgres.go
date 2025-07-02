@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"test-task/internal/config"
 	"test-task/internal/models"
+	"time"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -18,10 +19,24 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 		cfg.PostgresPassword,
 		cfg.PostgresDBName,
 	)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-	if err != nil {
-		return nil, err
+
+	var db *gorm.DB
+	var err error
+
+	const maxAttempts = 5
+	for i := 1; i <= maxAttempts; i++ {
+		db, err = gorm.Open(postgres.Open(dsn), &gorm.Config{})
+		if err == nil {
+			break
+		}
+		fmt.Printf("DB connection failed attempt %d , err: %v ", i, err)
+		time.Sleep(2 * time.Second)
 	}
+
+	if err != nil {
+		return nil, fmt.Errorf("could not connect to DB")
+	}
+
 	if cfg.AutoMigrate {
 		err = db.AutoMigrate(&models.User{}, &models.Session{})
 		if err != nil {
@@ -29,5 +44,6 @@ func NewPostgresDB(cfg *config.Config) (*gorm.DB, error) {
 		}
 		fmt.Println("AutoMigrate completed")
 	}
+
 	return db, nil
 }
